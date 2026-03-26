@@ -405,6 +405,8 @@ stage-harness 可通过 Ralph 的 guard hooks 注入额外检查（如 token 预
 
 ## 八、Review 体系总览
 
+V4 采用**双轨 review**：Flow-Next 负责技术 review（跨模型自动化），stage-harness 负责治理 review（多角色议会）。两者互补，不是替代。
+
 | 阶段 | Flow-Next Review | stage-harness 议会 | 关系 |
 |------|-----------------|-------------------|------|
 | SPEC | — | 轻议会（3~5 reviewer） | 议会独占 |
@@ -413,23 +415,89 @@ stage-harness 可通过 Ralph 的 guard hooks 注入额外检查（如 token 预
 | VERIFY | `/flow-next:epic-review` + ECC | 验收议会（5~7 reviewer） | 互补：compliance + 治理 |
 | DONE | — | 发布议会（3~4 reviewer） | 议会独占 |
 
+### 8.1 分层议会详细设计
+
+分层议会是 V4 体系中**不可降级的核心机制**。它提供的多角色多视角审查是 Flow-Next 单 reviewer 技术 review 无法替代的。
+
+#### A 类：轻议会（SPEC 出口）
+
+| 项目 | 内容 |
+|------|------|
+| **目标** | 判断规格是否足够稳定，可进入 PLAN |
+| **规模** | 3~5 个 reviewer subagent |
+| **典型角色** | 规格完整性 reviewer、一致性 reviewer、可落地性 reviewer、可测试性 reviewer（可选）、安全/数据约束 reviewer（按需） |
+| **关注重点** | 漏项、冲突、隐含假设、规格与任务一致性、是否可承接为计划 |
+| **裁决语义** | `GO`（放行）/ `REVISE`（修改后重审）/ `HOLD`（阻断，需重大调整） |
+| **输出** | `spec-council-report.md`、`spec-council-verdict.json` |
+| **实现** | Claude Code subagents 并行启动，每个 reviewer 独立审查 epic spec，最后汇总裁决 |
+
+#### B 类：计划议会（PLAN 出口）
+
+| 项目 | 内容 |
+|------|------|
+| **目标** | 判断计划是否具备执行控制力 |
+| **规模** | 5~7 个 reviewer subagent |
+| **典型角色** | 覆盖性 reviewer、任务切分 reviewer、依赖路径 reviewer、测试策略 reviewer、架构承接 reviewer、安全风险 reviewer、回滚/恢复 reviewer（按需） |
+| **核心审查问题** | 1. 所有需求是否有落点？ 2. 每个 task 是否边界清晰、done 条件清晰？ 3. 依赖是否无循环？ 4. 高风险点是否有缓解？ 5. 冷启动执行器能否只凭 artifacts 开工？ |
+| **裁决语义** | `READY`（放行）/ `READY_WITH_CONDITIONS`（放行但跟踪条件项）/ `BLOCK`（阻断） |
+| **输出** | `plan-council-report.md`、`plan-council-verdict.json` |
+| **与 Flow-Next plan-review 的分工** | Flow-Next plan-review 审的是"技术上可不可行"；计划议会审的是"治理上是否充分"——有没有偷偷带入未决策项、是否符合团队标准、能否交接给其他人执行 |
+
+#### C 类：验收议会（VERIFY 出口）
+
+| 项目 | 内容 |
+|------|------|
+| **目标** | 判断实现结果是否正式过关 |
+| **规模** | 5~7 个 reviewer subagent |
+| **典型角色** | 代码质量 reviewer、业务逻辑 reviewer、安全 reviewer、测试质量 reviewer、nil/null safety reviewer、影响范围 reviewer、死代码 reviewer |
+| **关注重点** | 代码质量、业务逻辑正确性、测试质量、安全、nil/null safety、ripple effect、dead code / reachability |
+| **裁决语义** | `PASS`（通过）/ `FAIL`（不通过，进入 FIX） |
+| **输出** | `review-report.md`、`test-report.md`、`verification.json` |
+| **与 Flow-Next impl-review 的分工** | Flow-Next impl-review 是跨模型技术 review（Claude 实现 → GPT 审查）；验收议会是多角色治理 review（7 个视角并行审查） |
+
+#### D 类：发布议会（DONE 出口）
+
+| 项目 | 内容 |
+|------|------|
+| **目标** | 判断是否具备发布与交付条件 |
+| **规模** | 3~4 个 reviewer subagent |
+| **典型角色** | Release readiness reviewer、Security signoff reviewer、Delivery/docs reviewer、Learning/governance reviewer |
+| **关注重点** | 交付包完整性、最终安全签署、文档与 release notes、学习候选是否妥善提名 |
+| **裁决语义** | `RELEASE_READY`（可发布）/ `RELEASE_WITH_CONDITIONS`（条件发布）/ `NOT_READY`（不可发布） |
+| **输出** | `release-council-report.md`、`release-council-verdict.json` |
+
+### 8.2 议会裁决汇总逻辑
+
+多个 reviewer 并行审查后，如何得出最终 verdict：
+
+| 策略 | 适用场景 | 规则 |
+|------|---------|------|
+| **多数决** | 轻议会、发布议会 | >50% reviewer 同意则放行 |
+| **一票否决** | 安全相关审查项 | 任何一个安全 reviewer 标记 FAIL 则整体 FAIL |
+| **加权多数** | 计划议会、验收议会 | 覆盖性/安全 reviewer 权重 2x，其他 1x |
+
+当 reviewer 输出格式不一致时（LLM 输出不总是结构化的），裁决汇总脚本需要：
+1. 尝试解析 JSON verdict
+2. 解析失败时做 fallback 文本匹配（搜索 PASS/FAIL/GO/BLOCK 关键词）
+3. 完全无法解析时标记为 `INCONCLUSIVE`，升级人工
+
 ---
 
 ## 九、动态强度控制
 
-不是每个 feature 都走最重路径。根据风险等级动态调整：
+不是每个 feature 都走最重路径。根据风险等级动态调整——**但议会始终存在**，只调整规模：
 
 | 控制维度 | 低风险 | 中风险 | 高风险 |
 |---------|-------|-------|-------|
 | CLARIFY | 可跳过 brainstorming | brainstorming + interview | 完整 brainstorming + 深度 interview |
-| 轻议会 | 可跳过 | 3 reviewer | 5 reviewer |
+| 轻议会 | **3 reviewer** | 3 reviewer | 5 reviewer |
 | Plan depth | short | standard | deep |
-| Plan-review | 可跳过 | 标准 | 标准 + 议会 |
-| 计划议会 | 可跳过 | 5 reviewer | 7 reviewer |
+| Plan-review | 可跳过 | 标准 | 标准 |
+| 计划议会 | **3 reviewer** | 5 reviewer | 7 reviewer |
 | EXECUTE 模式 | Ralph 自治 | worker + review | worker + review + 人工检查点 |
-| Impl-review | 标准 | 标准 + Codex 跨模型 | 标准 + Codex + 议会 |
-| 验收议会 | 3 reviewer | 5 reviewer | 7 reviewer |
-| 发布议会 | 2 reviewer | 3 reviewer | 4 reviewer |
+| Impl-review | 标准 | 标准 + Codex 跨模型 | 标准 + Codex |
+| 验收议会 | **3 reviewer** | 5 reviewer | 7 reviewer |
+| 发布议会 | **2 reviewer** | 3 reviewer | 4 reviewer |
 | Decision Bundle | 仅 PLAN→EXECUTE | 全部触发点 | 全部触发点 + 额外检查点 |
 
 风险等级在 CLARIFY 阶段评估，依据：
@@ -533,40 +601,46 @@ Flow-Next 的 Ralph 是一个完整的自治运行循环。在 V4 体系中：
 
 **用户价值**：验证"AI 能不能从模糊需求推进到代码交付"这一核心假设。全程零配置。
 
-### MVP-1：加入人工决策收束（轻量 stage-harness）
+### MVP-1：Decision Bundle + 完整多 reviewer 议会
 
-**目标**：在 MVP-0 的基础上，加入关键决策收束和基础门禁。
+**目标**：在 MVP-0 的基础上，加入人工决策收束和**完整的多 reviewer 议会体系**。
+
+议会是 V4 的核心质量保障机制，不做降级处理。
 
 | 序号 | 任务 | 验收标准 |
 |------|------|---------|
 | 1.1 | 实现 Decision Bundle（含 must_confirm / assumable / deferrable 分类） | AI 能区分哪些问题值得问人 |
-| 1.2 | 实现 PLAN→EXECUTE 门禁 | must_confirm 项未拍板则阻断 |
-| 1.3 | 实现自动放行规则 | assumable 项 + 议会 PASS 不等人确认 |
-| 1.4 | 创建 `.harness/` 目录结构 | 治理元数据有处存放 |
+| 1.2 | 实现自动放行规则 | assumable 项 + 议会通过时不等人确认 |
+| 1.3 | 创建 `.harness/` 目录结构 | 治理元数据有处存放 |
+| 1.4 | 实现轻议会（SPEC 出口，3~5 reviewer） | reviewer subagent 并行审查 epic spec，输出 verdict |
+| 1.5 | 实现计划议会（PLAN 出口，5~7 reviewer） | reviewer subagent 并行审查 task 图谱，输出 verdict |
+| 1.6 | 实现验收议会（VERIFY 出口，5~7 reviewer） | 多角色并行审查实现结果，输出 PASS/FAIL |
+| 1.7 | 实现议会裁决汇总逻辑 | 多数决 + 安全一票否决 + 输出格式容错 |
+| 1.8 | 实现 PLAN→EXECUTE 门禁 | 计划议会 verdict ≠ BLOCK + must_confirm 已拍板 |
+| 1.9 | 实现 FIX 轮次控制 | 最多 3 轮 FIX→VERIFY 后升级人工 |
 
-### MVP-2：加入质量保障
+### MVP-2：发布流程 + DONE 阶段 + 门禁全覆盖
 
-**目标**：增加质量审查，但保持轻量。
+**目标**：完成发布议会 + 交付包 + 全阶段门禁覆盖。
 
 | 序号 | 任务 | 验收标准 |
 |------|------|---------|
-| 2.1 | 实现 checklist 式议会（单 LLM 多视角，低成本） | SPEC 和 PLAN 出口有质量审查 |
+| 2.1 | 实现发布议会（DONE 出口，3~4 reviewer） | 交付完整性 + 安全签署审查 |
 | 2.2 | Decision Bundle 全触发点 | 所有阶段出口可分类决策 |
-| 2.3 | FIX 轮次控制 | 最多 3 轮后升级人工 |
-| 2.4 | DONE 阶段交付包生成 | release-notes + delivery-summary |
+| 2.3 | DONE 阶段交付包生成 | release-notes + delivery-summary |
+| 2.4 | ECC 安全扫描 | 安全报告可产出 |
+| 2.5 | 动态强度控制 | 根据风险等级调整议会规模 |
 
-### MVP-3：自治 + 深度治理 + 学习
+### MVP-3：自治 + 学习 + 度量
 
-**目标**：启用 Ralph 自治 + 完整治理体系 + 持续学习。
+**目标**：启用 Ralph 自治 + 持续学习 + 量化度量。
 
 | 序号 | 任务 | 验收标准 |
 |------|------|---------|
 | 3.1 | Ralph 自治模式集成 | 低风险 feature 可 overnight 运行 |
-| 3.2 | 动态强度控制 | 根据风险等级调整流程重量 |
-| 3.3 | 真实多 reviewer 议会（替换 checklist 式） | 高风险 feature 有 5~7 reviewer |
-| 3.4 | ECC 安全扫描 | 安全报告可产出 |
-| 3.5 | 学习沉淀流程 | Flow-Next memory → 人工审核 → 团队规则晋升 |
-| 3.6 | Eval 数据面 | token / latency / outcome 指标 |
+| 3.2 | 学习沉淀流程 | Flow-Next memory → 人工审核 → 团队规则晋升 |
+| 3.3 | Eval 数据面 | token / latency / outcome 指标 |
+| 3.4 | adversarial-spec 增强（高风险可选） | 多模型对抗式规格补盲 |
 
 ---
 
