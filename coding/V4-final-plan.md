@@ -50,13 +50,19 @@ PLAN 不是中间文档，而是后半程的控制中心。它控制覆盖、切
 
 ### 3.2 Decision Bundle
 
-在关键阶段出口，收束必须由人拍板的问题，防止 AI 替人拍板。
+在关键阶段出口，收束必须由人拍板的问题，防止 AI 替人拍板。同时支持**决策分类**——AI 应主动判断哪些问题可以先假设推进，只把真正无法自主决策的问题交给人。
 
 触发点：
 - `CLARIFY → SPEC`
 - `SPEC → PLAN`
 - `PLAN → EXECUTE`
 - `VERIFY → DONE`
+
+**自动放行规则**：
+- Decision Bundle 中所有项为 `assumable` 或 `deferrable` → **自动放行**，不等人确认
+- Decision Bundle 中有 `must_confirm` 项 → 阻断，等人拍板
+- 议会 verdict = GO / PASS / READY / RELEASE_READY → **自动放行**
+- 议会 verdict = REVISE / HOLD / BLOCK → 阻断
 
 ### 3.3 分层议会
 
@@ -238,16 +244,51 @@ stage-harness 不维护独立的 `state.json` 状态机，而是：
 
 ## 七、各阶段最终设计
 
+### 7.0 需求入口标准化（CLARIFY 前置）
+
+模糊需求可能以各种形态到达（微信消息、邮件、会议纪要、粗糙文档）。在进入 CLARIFY 之前，需要将其统一为可消费的输入。
+
+**不需要复杂的渠道对接**，只需要一个标准 prompt：
+
+> 将以下内容整理为结构化的需求输入：1. 一句话概述目标；2. 已知的约束或偏好；3. 期望的交付物形态。如果信息不足，标注为"待澄清"。
+
+这一步可由使用者手动完成，也可交给 AI 自动格式化。
+
 ### 7.1 CLARIFY — 需求澄清
 
 | 项目 | 内容 |
 |------|------|
 | **主负责** | Superpowers brainstorming → Flow-Next interview |
-| **工作流** | 1. Superpowers brainstorming 发散探索问题空间 → 2. `/flow-next:interview` 收敛精炼 → 3. Decision Bundle 收束待决策项 |
+| **工作流** | 1. Superpowers brainstorming 发散探索问题空间 → 2. `/flow-next:interview` 收敛精炼 → 3. **决策分类**（区分 must_confirm / assumable / deferrable） → 4. Decision Bundle 收束待决策项 |
 | **产物** | `clarification-notes.md`、`decision-bundle.json` |
-| **出口** | Decision Bundle 中所有关键项已由人拍板 |
+| **出口** | Decision Bundle 中所有 `must_confirm` 项已由人拍板；`assumable` 项已记录假设依据 |
 
 **Superpowers 与 Flow-Next interview 的分工**：brainstorming 偏发散（"这个问题空间有什么"），interview 偏收敛（"这个 spec 还缺什么"）。前者适合需求模糊时，后者适合 spec 已有初稿需要精炼时。
+
+**决策分类机制**（原始诉求的核心要求——AI 应尽量自己判断，只把真正无法自主决策的问题交给人）：
+
+| 分类 | 处理方式 | 示例 |
+|------|---------|------|
+| **must_confirm** | 纳入 Decision Bundle，阻断直到人回复 | 目标用户是内部还是外部？ |
+| **assumable** | AI 基于上下文/行业惯例做出假设，记录假设依据，**不阻断** | 数据库默认用 PostgreSQL |
+| **deferrable** | 不阻塞当前阶段，标记为后续需确认 | 日志格式的具体字段定义 |
+
+Decision Bundle 结构扩展：
+
+```json
+{
+  "id": "D-CLARIFY-01",
+  "question": "数据库选型",
+  "classification": "assumable",
+  "assumption": "默认 PostgreSQL",
+  "assumption_basis": "团队现有技术栈 + 无特殊性能要求",
+  "override_needed_by": "PLAN",
+  "options": ["PostgreSQL", "MySQL", "MongoDB"],
+  "human_decision": null
+}
+```
+
+这样 Decision Bundle 不仅是"问人的问题包"，还是"AI 假设的记录包"。人在审核时可以快速确认或推翻假设，而不需要逐一回答所有问题。
 
 ### 7.2 SPEC — 规格定义
 
@@ -474,46 +515,57 @@ Flow-Next 的 Ralph 是一个完整的自治运行循环。在 V4 体系中：
 
 ---
 
-## 十三、MVP 路线
+## 十三、MVP 路线（以用户价值为导向）
 
-### MVP-1：最小闭环
+### MVP-0：Day 1 即可体验（零开发）
 
-**目标**：打通 CLARIFY → SPEC → PLAN → EXECUTE → VERIFY 最小链路。
-
-| 序号 | 任务 | 验收标准 |
-|------|------|---------|
-| 1.1 | 安装 Flow-Next + Superpowers | 两个插件可正常使用 |
-| 1.2 | Superpowers brainstorming + Flow-Next interview 串联 | 能从模糊需求产出清晰 spec |
-| 1.3 | `flowctl epic create` + `set-plan` | epic spec 可创建 |
-| 1.4 | `/flow-next:plan` 生成 tasks | task 图谱可生成 |
-| 1.5 | `/flow-next:work` 执行 tasks | 代码 + 测试 + evidence 可产出 |
-| 1.6 | `/flow-next:impl-review` | 跨模型 review 可运行 |
-| 1.7 | 实现 Decision Bundle（PLAN→EXECUTE） | 人工拍板后才能进入 EXECUTE |
-| 1.8 | 实现基础门禁（hooks） | 产物不齐全时可阻断 |
-
-### MVP-2：议会 + 治理
-
-**目标**：加入分层议会和 ECC 治理。
+**目标**：用户拿到模糊需求后，当天就能跑通全流程。**不需要任何 stage-harness 代码。**
 
 | 序号 | 任务 | 验收标准 |
 |------|------|---------|
-| 2.1 | 实现轻议会（SPEC） | 3~5 reviewer 审查 epic spec |
-| 2.2 | 实现计划议会（PLAN） | 5~7 reviewer 审查 task 图谱 |
-| 2.3 | 实现验收议会（VERIFY） | 多角色审查 + ECC 安全扫描 |
-| 2.4 | Decision Bundle 全触发点 | 所有阶段出口可拍板 |
-| 2.5 | FIX 轮次控制 | 最多 3 轮后升级 |
+| 0.1 | 安装 Flow-Next + Superpowers | 两个插件可正常使用 |
+| 0.2 | 运行 `/flow-next:setup` | flowctl 可用 + review backend 配置完成 |
+| 0.3 | 用 Superpowers brainstorming 澄清需求 | 从模糊输入产出结构化问题空间 |
+| 0.4 | 用 `/flow-next:interview` 精炼 | spec 补盲完成 |
+| 0.5 | 用 `flowctl epic create` + `/flow-next:plan` | epic + task 图谱生成 |
+| 0.6 | 用 `/flow-next:work` 执行开发 | 代码 + 测试 + evidence 产出 |
+| 0.7 | 用 `/flow-next:impl-review` 审查 | 跨模型 review 可运行 |
 
-### MVP-3：自治 + 发布 + 学习
+**用户价值**：验证"AI 能不能从模糊需求推进到代码交付"这一核心假设。全程零配置。
 
-**目标**：启用 Ralph 自治 + 完成 DONE 阶段 + 持续学习。
+### MVP-1：加入人工决策收束（轻量 stage-harness）
+
+**目标**：在 MVP-0 的基础上，加入关键决策收束和基础门禁。
+
+| 序号 | 任务 | 验收标准 |
+|------|------|---------|
+| 1.1 | 实现 Decision Bundle（含 must_confirm / assumable / deferrable 分类） | AI 能区分哪些问题值得问人 |
+| 1.2 | 实现 PLAN→EXECUTE 门禁 | must_confirm 项未拍板则阻断 |
+| 1.3 | 实现自动放行规则 | assumable 项 + 议会 PASS 不等人确认 |
+| 1.4 | 创建 `.harness/` 目录结构 | 治理元数据有处存放 |
+
+### MVP-2：加入质量保障
+
+**目标**：增加质量审查，但保持轻量。
+
+| 序号 | 任务 | 验收标准 |
+|------|------|---------|
+| 2.1 | 实现 checklist 式议会（单 LLM 多视角，低成本） | SPEC 和 PLAN 出口有质量审查 |
+| 2.2 | Decision Bundle 全触发点 | 所有阶段出口可分类决策 |
+| 2.3 | FIX 轮次控制 | 最多 3 轮后升级人工 |
+| 2.4 | DONE 阶段交付包生成 | release-notes + delivery-summary |
+
+### MVP-3：自治 + 深度治理 + 学习
+
+**目标**：启用 Ralph 自治 + 完整治理体系 + 持续学习。
 
 | 序号 | 任务 | 验收标准 |
 |------|------|---------|
 | 3.1 | Ralph 自治模式集成 | 低风险 feature 可 overnight 运行 |
 | 3.2 | 动态强度控制 | 根据风险等级调整流程重量 |
-| 3.3 | 发布议会 | 交付完整性审查 |
-| 3.4 | 交付包自动生成 | release-notes + delivery-summary |
-| 3.5 | 学习流程 | Flow-Next memory + 人工晋升 |
+| 3.3 | 真实多 reviewer 议会（替换 checklist 式） | 高风险 feature 有 5~7 reviewer |
+| 3.4 | ECC 安全扫描 | 安全报告可产出 |
+| 3.5 | 学习沉淀流程 | Flow-Next memory → 人工审核 → 团队规则晋升 |
 | 3.6 | Eval 数据面 | token / latency / outcome 指标 |
 
 ---
@@ -543,16 +595,53 @@ Flow-Next 的 Ralph 是一个完整的自治运行循环。在 V4 体系中：
 
 ---
 
-## 十六、结论
+## 十六、经验沉淀与复制
 
-V4 是对 V3 的关键修订而非否定。V3 的机制设计（PLAN 控制中心、议会、Decision Bundle、门禁）全部保留。唯一的根本性调整是：
+V4 定义一个三层沉淀模型，确保经验可积累、可复用、可清理：
 
-> **承认 Flow-Next 已经是一个完整的编排系统，把 stage-harness 从"编排外壳"重新定位为"治理增强层"。**
+| 层 | 存储位置 | 内容 | 生命周期 |
+|----|---------|------|---------|
+| **项目级** | Flow-Next `.flow/memory/` | 当前项目的 pitfalls / conventions | 项目结束时归档 |
+| **团队级** | CLAUDE.md / rules / skills | 团队通用的工程约定和经验 | 长期维护，定期清理 |
+| **个人级** | 本地用户配置 | 个人偏好和习惯 | 个人维护 |
 
-这个调整带来三个直接收益：
+晋升路径：`项目经验（Flow-Next memory）→ 人工评审（DONE 阶段 learning-candidates.md）→ 团队规则（CLAUDE.md）`
+
+清理策略：团队级规则不超过 30 条，每季度 review 一次，过时规则降级或移除。
+
+---
+
+## 十七、失败路径设计
+
+V4 不仅覆盖成功路径，还定义关键的失败/终止/挂起场景：
+
+| 场景 | 处理方式 |
+|------|---------|
+| CLARIFY 后发现需求不可行 | 输出 `not-feasible` 结论 + 原因记录，流程终止 |
+| PLAN 后发现技术方案不成立 | 计划议会 verdict = BLOCK，回流 SPEC 或终止 |
+| EXECUTE 中途外部依赖不可用 | task 标记为 `blocked`（flowctl 已支持），等待解除后继续 |
+| Epic 被业务方取消 | flowctl 标记 epic 为关闭状态，保留全部产物作为记录 |
+| Token 预算耗尽 | 暂停执行，保存当前进度，等待续费后恢复 |
+| Ralph 自治循环异常 | guard hooks 自动暂停，输出错误报告，等人干预 |
+
+---
+
+## 十八、结论
+
+V4 是对 V3 的关键修订而非否定。V3 的机制设计（PLAN 控制中心、议会、Decision Bundle、门禁）全部保留。两个根本性调整：
+
+**调整一**：承认 Flow-Next 已经是一个完整的编排系统，把 stage-harness 从"编排外壳"重新定位为"治理增强层"。
+
+**调整二**：引入**决策分类机制**（must_confirm / assumable / deferrable）+ **自动放行规则**，从机制层面保障"人工介入点极少"这一核心诉求。
+
+这两个调整带来的直接收益：
 
 1. **消除双重编排**——不再有两套状态机、两套任务追踪、两套 review 体系
 2. **大幅降低 stage-harness 的开发量**——不需要实现 plan 生成、task 调度、review 引擎
 3. **充分利用 Flow-Next 的成熟能力**——11 命令、20 agent、Ralph 自治、跨模型 review
+4. **Day 1 即可使用**——MVP-0 阶段只装两个插件就能跑通全流程
+5. **人工介入最小化**——AI 主动假设推进 + 议会自动放行，低风险 feature 人工介入可压缩到 1~2 次
 
-stage-harness 的价值不在于"什么都做"，而在于做好 Flow-Next 不做的事——**Decision Bundle、分层议会、动态强度控制、ECC 治理、发布流程**。这些恰恰是把 AI 辅助开发从"能跑"提升到"可治理"的关键。
+V4 的核心理念回应原始诉求：
+
+> **面对模糊需求，AI 自主完成从需求澄清到交付的端到端推进；只有真正必须由人拍板的极少数决策点才会打断流程；其余过程全部自动推进并最终输出可用成果。**
