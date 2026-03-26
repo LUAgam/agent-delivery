@@ -1,0 +1,22 @@
+{
+  "assignee": "gordon.mickel@gmail.com",
+  "claim_note": "",
+  "claimed_at": "2026-01-15T22:58:46.775692Z",
+  "created_at": "2026-01-15T22:50:57.357620Z",
+  "depends_on": [],
+  "epic": "fn-15-96t",
+  "evidence": {
+    "commits": [
+      "e9e2a22",
+      "4a04d73c336cd725cccb2dec516bdb3da02b1f12"
+    ],
+    "prs": [],
+    "tests": []
+  },
+  "id": "fn-15-96t.3",
+  "priority": null,
+  "spec_path": ".flow/tasks/fn-15-96t.3.md",
+  "status": "done",
+  "title": "Update phases.md with plan-sync step",
+  "updated_at": "2026-01-15T23:03:40.374686Z"
+}

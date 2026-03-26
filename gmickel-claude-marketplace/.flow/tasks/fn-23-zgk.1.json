@@ -1,0 +1,14 @@
+{
+  "assignee": null,
+  "claim_note": "",
+  "claimed_at": null,
+  "created_at": "2026-01-30T23:26:01.384052Z",
+  "depends_on": [],
+  "epic": "fn-23-zgk",
+  "id": "fn-23-zgk.1",
+  "priority": null,
+  "spec_path": ".flow/tasks/fn-23-zgk.1.md",
+  "status": "todo",
+  "title": "Add slugify and update epic creation",
+  "updated_at": "2026-01-30T23:26:26.622130Z"
+}

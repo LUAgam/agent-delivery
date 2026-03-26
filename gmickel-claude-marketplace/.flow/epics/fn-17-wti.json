@@ -1,0 +1,13 @@
+{
+  "branch_name": "fn-17-wti",
+  "created_at": "2026-01-16T10:25:16.144524Z",
+  "depends_on_epics": [],
+  "id": "fn-17-wti",
+  "next_task": 1,
+  "plan_review_status": "unknown",
+  "plan_reviewed_at": null,
+  "spec_path": ".flow/specs/fn-17-wti.md",
+  "status": "done",
+  "title": "Centralize review backend detection",
+  "updated_at": "2026-01-16T10:25:47.410348Z"
+}

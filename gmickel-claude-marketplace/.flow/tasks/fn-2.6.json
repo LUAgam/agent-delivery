@@ -1,0 +1,25 @@
+{
+  "assignee": "gordon.mickel@gmail.com",
+  "claim_note": "",
+  "claimed_at": "2026-01-11T12:07:59.988340Z",
+  "created_at": "2026-01-10T22:44:18.918678Z",
+  "depends_on": [
+    "fn-2.2"
+  ],
+  "epic": "fn-2",
+  "evidence": {
+    "commits": [
+      "a0c302a"
+    ],
+    "prs": [],
+    "tests": [
+      "smoke_test.sh"
+    ]
+  },
+  "id": "fn-2.6",
+  "priority": null,
+  "spec_path": ".flow/tasks/fn-2.6.md",
+  "status": "done",
+  "title": "Update ralph-guard.py for codex patterns",
+  "updated_at": "2026-01-11T12:09:53.338902Z"
+}

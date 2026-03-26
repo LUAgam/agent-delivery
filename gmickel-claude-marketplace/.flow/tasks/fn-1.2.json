@@ -1,0 +1,16 @@
+{
+  "assignee": "gordon.mickel@gmail.com",
+  "claim_note": "",
+  "claimed_at": "2026-01-10T11:16:59.989660Z",
+  "created_at": "2026-01-10T07:32:10.917838Z",
+  "depends_on": [
+    "fn-1.1"
+  ],
+  "epic": "fn-1",
+  "id": "fn-1.2",
+  "priority": null,
+  "spec_path": ".flow/tasks/fn-1.2.md",
+  "status": "done",
+  "title": "Capture hook (PostToolUse)",
+  "updated_at": "2026-01-10T11:19:27.149030Z"
+}

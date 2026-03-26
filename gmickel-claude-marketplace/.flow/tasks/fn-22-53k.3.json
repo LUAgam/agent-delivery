@@ -1,0 +1,16 @@
+{
+  "assignee": null,
+  "claim_note": "",
+  "claimed_at": null,
+  "created_at": "2026-01-30T08:44:04.010091Z",
+  "depends_on": [
+    "fn-22-53k.1"
+  ],
+  "epic": "fn-22-53k",
+  "id": "fn-22-53k.3",
+  "priority": null,
+  "spec_path": ".flow/tasks/fn-22-53k.3.md",
+  "status": "todo",
+  "title": "flowctl: codex completion-review command",
+  "updated_at": "2026-01-30T08:44:10.685919Z"
+}

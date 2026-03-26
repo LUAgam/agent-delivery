@@ -1,0 +1,25 @@
+{
+  "assignee": "gordon.mickel@gmail.com",
+  "claim_note": "",
+  "claimed_at": "2026-01-11T12:02:02.492187Z",
+  "created_at": "2026-01-10T22:44:18.763287Z",
+  "depends_on": [
+    "fn-2.2"
+  ],
+  "epic": "fn-2",
+  "evidence": {
+    "commits": [
+      "4d2b1a5945ec615f37b6b0dbf1b59cfebe729f95"
+    ],
+    "prs": [],
+    "tests": [
+      "smoke_test.sh"
+    ]
+  },
+  "id": "fn-2.4",
+  "priority": null,
+  "spec_path": ".flow/tasks/fn-2.4.md",
+  "status": "done",
+  "title": "Update plan-review skill for codex backend",
+  "updated_at": "2026-01-11T12:04:07.482049Z"
+}

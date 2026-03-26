@@ -1,0 +1,13 @@
+{
+  "branch_name": "fn-8",
+  "created_at": "2026-01-12T20:39:15.195374Z",
+  "depends_on_epics": [],
+  "id": "fn-8",
+  "next_task": 1,
+  "plan_review_status": "unknown",
+  "plan_reviewed_at": null,
+  "spec_path": ".flow/specs/fn-8.md",
+  "status": "open",
+  "title": "Explore OpenProse for Ralph orchestration",
+  "updated_at": "2026-01-12T20:39:15.195566Z"
+}

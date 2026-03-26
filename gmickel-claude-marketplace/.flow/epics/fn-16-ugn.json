@@ -1,0 +1,13 @@
+{
+  "branch_name": "fn-16-ugn",
+  "created_at": "2026-01-16T00:35:49.873433Z",
+  "depends_on_epics": [],
+  "id": "fn-16-ugn",
+  "next_task": 1,
+  "plan_review_status": "unknown",
+  "plan_reviewed_at": null,
+  "spec_path": ".flow/specs/fn-16-ugn.md",
+  "status": "open",
+  "title": "Manual plan-sync trigger",
+  "updated_at": "2026-01-16T00:35:49.873786Z"
+}

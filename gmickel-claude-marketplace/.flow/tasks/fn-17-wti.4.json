@@ -1,0 +1,25 @@
+{
+  "assignee": "gordon.mickel@gmail.com",
+  "claim_note": "",
+  "claimed_at": "2026-01-16T11:07:35.559617Z",
+  "created_at": "2026-01-16T10:29:42.649184Z",
+  "depends_on": [
+    "fn-17-wti.1"
+  ],
+  "epic": "fn-17-wti",
+  "evidence": {
+    "commits": [
+      "a3f73d520510e68b61a720422c66e327d3b4b991"
+    ],
+    "prs": [],
+    "tests": [
+      "grep -r 'which rp-cli' plugins/flow-next/skills/flow-next-plan-review/ (no matches)"
+    ]
+  },
+  "id": "fn-17-wti.4",
+  "priority": null,
+  "spec_path": ".flow/tasks/fn-17-wti.4.md",
+  "status": "done",
+  "title": "Remove runtime detection from flow-next-plan-review",
+  "updated_at": "2026-01-16T11:11:32.199024Z"
+}

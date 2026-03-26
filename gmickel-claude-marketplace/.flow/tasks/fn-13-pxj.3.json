@@ -1,0 +1,25 @@
+{
+  "assignee": "gordon.mickel@gmail.com",
+  "claim_note": "",
+  "claimed_at": "2026-01-15T00:04:21.115249Z",
+  "created_at": "2026-01-14T23:01:20.769491Z",
+  "depends_on": [
+    "fn-13-pxj.2"
+  ],
+  "epic": "fn-13-pxj",
+  "evidence": {
+    "commits": [
+      "784fb1e828e3accc895356e4ec14476d465a42f1"
+    ],
+    "prs": [],
+    "tests": [
+      "plugins/flow-next/scripts/ci_test.sh"
+    ]
+  },
+  "id": "fn-13-pxj.3",
+  "priority": null,
+  "spec_path": ".flow/tasks/fn-13-pxj.3.md",
+  "status": "done",
+  "title": "Add flowctl ralph pause/resume/stop/status",
+  "updated_at": "2026-01-15T00:06:03.621311Z"
+}

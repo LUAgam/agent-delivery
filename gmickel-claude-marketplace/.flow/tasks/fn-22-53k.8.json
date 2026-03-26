@@ -1,0 +1,16 @@
+{
+  "assignee": null,
+  "claim_note": "",
+  "claimed_at": null,
+  "created_at": "2026-01-30T09:25:03.583796Z",
+  "depends_on": [
+    "fn-22-53k.4"
+  ],
+  "epic": "fn-22-53k",
+  "id": "fn-22-53k.8",
+  "priority": null,
+  "spec_path": ".flow/tasks/fn-22-53k.8.md",
+  "status": "todo",
+  "title": "skill: update flow-next-work for completion_review status",
+  "updated_at": "2026-01-30T09:25:03.583982Z"
+}

@@ -1,0 +1,25 @@
+{
+  "assignee": "gordon.mickel@gmail.com",
+  "claim_note": "",
+  "claimed_at": "2026-01-11T12:04:25.695494Z",
+  "created_at": "2026-01-10T22:44:18.840633Z",
+  "depends_on": [
+    "fn-2.2"
+  ],
+  "epic": "fn-2",
+  "evidence": {
+    "commits": [
+      "72263cd"
+    ],
+    "prs": [],
+    "tests": [
+      "smoke_test.sh"
+    ]
+  },
+  "id": "fn-2.5",
+  "priority": null,
+  "spec_path": ".flow/tasks/fn-2.5.md",
+  "status": "done",
+  "title": "Update Ralph templates for codex option",
+  "updated_at": "2026-01-11T12:07:34.008892Z"
+}

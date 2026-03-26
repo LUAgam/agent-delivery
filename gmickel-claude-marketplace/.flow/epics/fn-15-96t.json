@@ -1,0 +1,13 @@
+{
+  "branch_name": "fn-15-96t",
+  "created_at": "2026-01-15T22:50:36.363859Z",
+  "depends_on_epics": [],
+  "id": "fn-15-96t",
+  "next_task": 1,
+  "plan_review_status": "unknown",
+  "plan_reviewed_at": null,
+  "spec_path": ".flow/specs/fn-15-96t.md",
+  "status": "open",
+  "title": "Plan-Sync Agent",
+  "updated_at": "2026-01-15T22:50:42.102226Z"
+}

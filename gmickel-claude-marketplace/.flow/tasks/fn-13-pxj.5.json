@@ -1,0 +1,29 @@
+{
+  "assignee": "gordon.mickel@gmail.com",
+  "claim_note": "",
+  "claimed_at": "2026-01-15T00:11:18.175005Z",
+  "created_at": "2026-01-14T23:01:20.948082Z",
+  "depends_on": [
+    "fn-13-pxj.1",
+    "fn-13-pxj.2",
+    "fn-13-pxj.3",
+    "fn-13-pxj.4",
+    "fn-13-pxj.8"
+  ],
+  "epic": "fn-13-pxj",
+  "evidence": {
+    "commits": [
+      "e297f762e8c921c4c7bb228b564ca32ffa2e3aa0"
+    ],
+    "prs": [],
+    "tests": [
+      "plugins/flow-next/scripts/ci_test.sh"
+    ]
+  },
+  "id": "fn-13-pxj.5",
+  "priority": null,
+  "spec_path": ".flow/tasks/fn-13-pxj.5.md",
+  "status": "done",
+  "title": "Add CI tests for async control commands",
+  "updated_at": "2026-01-15T00:12:09.375291Z"
+}

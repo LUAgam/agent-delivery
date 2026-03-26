@@ -1,0 +1,25 @@
+{
+  "assignee": "gordon.mickel@gmail.com",
+  "claim_note": "",
+  "claimed_at": "2026-01-11T12:11:03.198168Z",
+  "created_at": "2026-01-10T22:53:26.647672Z",
+  "depends_on": [
+    "fn-2.2"
+  ],
+  "epic": "fn-2",
+  "evidence": {
+    "commits": [
+      "1349589"
+    ],
+    "prs": [],
+    "tests": [
+      "smoke_test.sh"
+    ]
+  },
+  "id": "fn-2.8",
+  "priority": null,
+  "spec_path": ".flow/tasks/fn-2.8.md",
+  "status": "done",
+  "title": "Update docs for codex backend",
+  "updated_at": "2026-01-11T12:13:23.460882Z"
+}

@@ -1,0 +1,13 @@
+{
+  "branch_name": "fn-18-kwn",
+  "created_at": "2026-01-16T20:28:31.339081Z",
+  "depends_on_epics": [],
+  "id": "fn-18-kwn",
+  "next_task": 1,
+  "plan_review_status": "unknown",
+  "plan_reviewed_at": null,
+  "spec_path": ".flow/specs/fn-18-kwn.md",
+  "status": "open",
+  "title": "RP CLI: Auto-open RepoPrompt window for reviews",
+  "updated_at": "2026-01-16T20:28:31.339251Z"
+}

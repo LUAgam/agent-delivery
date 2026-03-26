@@ -1,0 +1,26 @@
+{
+  "assignee": "gordon.mickel@gmail.com",
+  "claim_note": "",
+  "claimed_at": "2026-01-16T10:55:22.350665Z",
+  "created_at": "2026-01-16T10:26:13.595048Z",
+  "depends_on": [
+    "fn-17-wti.1"
+  ],
+  "epic": "fn-17-wti",
+  "evidence": {
+    "commits": [
+      "97f49822c8b4b4f8dc7d3f0baec4b9e6cd58eb0e",
+      "f2cb6f59e0c9cd1b1c5cf7fe152946837321d8f2"
+    ],
+    "prs": [],
+    "tests": [
+      "Manual inspection of workflow.md"
+    ]
+  },
+  "id": "fn-17-wti.2",
+  "priority": null,
+  "spec_path": ".flow/tasks/fn-17-wti.2.md",
+  "status": "done",
+  "title": "Add review backend question to /flow-next:setup",
+  "updated_at": "2026-01-16T11:01:39.360582Z"
+}

@@ -1,0 +1,25 @@
+{
+  "assignee": "gordon.mickel@gmail.com",
+  "claim_note": "",
+  "claimed_at": "2026-01-15T00:12:30.582233Z",
+  "created_at": "2026-01-14T23:01:21.033747Z",
+  "depends_on": [
+    "fn-13-pxj.5"
+  ],
+  "epic": "fn-13-pxj",
+  "evidence": {
+    "commits": [
+      "7b9969e9557088074a5c108c0814d98c182ca67a"
+    ],
+    "prs": [],
+    "tests": [
+      "plugins/flow-next/scripts/ci_test.sh"
+    ]
+  },
+  "id": "fn-13-pxj.6",
+  "priority": null,
+  "spec_path": ".flow/tasks/fn-13-pxj.6.md",
+  "status": "done",
+  "title": "Update documentation",
+  "updated_at": "2026-01-15T00:13:36.438316Z"
+}

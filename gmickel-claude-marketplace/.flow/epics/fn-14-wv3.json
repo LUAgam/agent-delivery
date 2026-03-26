@@ -1,0 +1,13 @@
+{
+  "branch_name": "fn-14-wv3",
+  "created_at": "2026-01-14T23:29:07.819246Z",
+  "depends_on_epics": ["fn-13-pxj"],
+  "id": "fn-14-wv3",
+  "next_task": 1,
+  "plan_review_status": "unknown",
+  "plan_reviewed_at": null,
+  "spec_path": ".flow/specs/fn-14-wv3.md",
+  "status": "open",
+  "title": "TUI: Ralph control integration",
+  "updated_at": "2026-01-14T23:29:24.168244Z"
+}

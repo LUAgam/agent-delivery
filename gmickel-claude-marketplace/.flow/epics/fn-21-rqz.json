@@ -1,0 +1,13 @@
+{
+  "branch_name": "fn-21-rqz",
+  "created_at": "2026-01-26T21:51:32.722496Z",
+  "depends_on_epics": [],
+  "id": "fn-21-rqz",
+  "next_task": 1,
+  "plan_review_status": "unknown",
+  "plan_reviewed_at": null,
+  "spec_path": ".flow/specs/fn-21-rqz.md",
+  "status": "open",
+  "title": "Revisit RP context_builder + chat_send for reviews",
+  "updated_at": "2026-01-26T21:51:46.687204Z"
+}

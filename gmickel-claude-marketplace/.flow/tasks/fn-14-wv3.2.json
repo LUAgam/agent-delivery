@@ -1,0 +1,16 @@
+{
+  "assignee": null,
+  "claim_note": "",
+  "claimed_at": null,
+  "created_at": "2026-01-14T23:29:50.487950Z",
+  "depends_on": [
+    "fn-14-wv3.1"
+  ],
+  "epic": "fn-14-wv3",
+  "id": "fn-14-wv3.2",
+  "priority": null,
+  "spec_path": ".flow/tasks/fn-14-wv3.2.md",
+  "status": "todo",
+  "title": "Show pause/stop badges in run list",
+  "updated_at": "2026-01-14T23:29:56.068240Z"
+}
