@@ -1,2 +1,4 @@
 .harness/
 .shipspec/
+__pycache__/
+*.pyc
