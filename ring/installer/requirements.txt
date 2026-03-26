@@ -1,0 +1,9 @@
+# Ring Multi-Platform Installer Requirements
+# Required for Cursor, Cline, OpenCode, Factory (YAML frontmatter parse/emit)
+PyYAML>=6.0
+
+# Optional: For development/testing
+# pytest>=7.0.0
+# pytest-cov>=4.0.0
+# mypy>=1.0.0
+# ruff>=0.1.0

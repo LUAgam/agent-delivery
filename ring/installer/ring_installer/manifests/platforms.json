@@ -1,0 +1,229 @@
+{
+  "version": "1.0.0",
+  "platforms": {
+    "claude": {
+      "name": "Claude Code",
+      "description": "Anthropic's Claude Code CLI agent",
+      "install_path": "~/.claude",
+      "components": {
+        "agents": {
+          "source_dir": "agents",
+          "target_dir": "agents",
+          "file_extension": ".md",
+          "transform": "passthrough"
+        },
+        "commands": {
+          "source_dir": "commands",
+          "target_dir": "commands",
+          "file_extension": ".md",
+          "transform": "passthrough"
+        },
+        "skills": {
+          "source_dir": "skills",
+          "target_dir": "skills",
+          "file_extension": ".md",
+          "transform": "passthrough"
+        },
+        "hooks": {
+          "source_dir": "hooks",
+          "target_dir": "hooks",
+          "file_extension": [".json", ".sh", ".py"],
+          "transform": "passthrough"
+        }
+      },
+      "config_file": ".claude-plugin/plugin.json",
+      "detection": {
+        "config_path": "~/.claude",
+        "binary_name": "claude",
+        "version_command": "claude --version"
+      },
+      "native_format": true
+    },
+    "codex": {
+      "name": "Codex",
+      "description": "OpenAI Codex CLI agent",
+      "install_path": "~/.codex",
+      "components": {
+        "skills": {
+          "source_dir": "skills",
+          "target_dir": "skills",
+          "file_extension": ".md",
+          "transform": "codex_skill"
+        }
+      },
+      "config_file": "config.toml",
+      "detection": {
+        "config_path": "~/.codex",
+        "binary_name": "codex",
+        "version_command": "codex --version"
+      },
+      "native_format": false
+    },
+    "factory": {
+      "name": "Factory AI",
+      "description": "Factory AI development platform",
+      "install_path": "~/.factory",
+      "components": {
+        "agents": {
+          "source_dir": "agents",
+          "target_dir": "droids",
+          "file_extension": ".md",
+          "transform": "factory_droid"
+        },
+        "commands": {
+          "source_dir": "commands",
+          "target_dir": "commands",
+          "file_extension": ".md",
+          "transform": "factory_command"
+        },
+        "skills": {
+          "source_dir": "skills",
+          "target_dir": "skills",
+          "file_extension": ".md",
+          "transform": "factory_skill"
+        },
+        "hooks": {
+          "source_dir": "hooks",
+          "target_dir": "hooks",
+          "file_extension": [".json", ".sh", ".py"],
+          "transform": "passthrough"
+        }
+      },
+      "config_file": ".factory/config.json",
+      "detection": {
+        "config_path": "~/.factory",
+        "binary_name": "factory",
+        "version_command": "factory --version"
+      },
+      "native_format": false,
+      "terminology": {
+        "agent": "droid",
+        "skill": "skill",
+        "command": "command"
+      }
+    },
+    "cursor": {
+      "name": "Cursor",
+      "description": "Cursor AI-powered code editor",
+      "install_path": "~/.cursor",
+      "components": {
+        "agents": {
+          "source_dir": "agents",
+          "target_dir": "agents",
+          "file_extension": ".md",
+          "transform": "cursor_workflow"
+        },
+        "commands": {
+          "source_dir": "commands",
+          "target_dir": "commands",
+          "file_extension": ".md",
+          "transform": "cursor_workflow"
+        },
+        "skills": {
+          "source_dir": "skills",
+          "target_dir": "skills",
+          "file_extension": ".md",
+          "transform": "cursor_skill"
+        }
+      },
+      "config_file": ".cursorrules",
+      "detection": {
+        "config_path": "~/.cursor",
+        "binary_name": null,
+        "app_path": {
+          "darwin": "/Applications/Cursor.app",
+          "win32": "%LOCALAPPDATA%/Programs/cursor/Cursor.exe",
+          "linux": "/usr/bin/cursor"
+        }
+      },
+      "native_format": false,
+      "terminology": {
+        "agent": "agent",
+        "skill": "skill",
+        "command": "command"
+      }
+    },
+    "cline": {
+      "name": "Cline",
+      "description": "Cline AI coding assistant (VS Code extension)",
+      "install_path": "~/.cline",
+      "components": {
+        "agents": {
+          "source_dir": "agents",
+          "target_dir": "prompts",
+          "file_extension": ".md",
+          "transform": "cline_prompt"
+        },
+        "commands": {
+          "source_dir": "commands",
+          "target_dir": "prompts",
+          "file_extension": ".md",
+          "transform": "cline_prompt"
+        },
+        "skills": {
+          "source_dir": "skills",
+          "target_dir": "prompts",
+          "file_extension": ".md",
+          "transform": "cline_prompt"
+        }
+      },
+      "config_file": ".cline/settings.json",
+      "detection": {
+        "config_path": "~/.cline",
+        "vscode_extension": "saoudrizwan.claude-dev",
+        "extension_paths": {
+          "darwin": "~/.vscode/extensions",
+          "win32": "%USERPROFILE%/.vscode/extensions",
+          "linux": "~/.vscode/extensions"
+        }
+      },
+      "native_format": false,
+      "terminology": {
+        "agent": "prompt",
+        "skill": "prompt",
+        "command": "prompt"
+      }
+    },
+    "opencode": {
+      "name": "OpenCode",
+      "description": "OpenCode (OhMyOpenCode) AI agent platform",
+      "install_path": "~/.config/opencode",
+      "components": {
+        "agents": {
+          "source_dir": "agents",
+          "target_dir": "agent",
+          "file_extension": ".md",
+          "transform": "opencode_agent"
+        },
+        "commands": {
+          "source_dir": "commands",
+          "target_dir": "command",
+          "file_extension": ".md",
+          "transform": "opencode_command"
+        },
+        "skills": {
+          "source_dir": "skills",
+          "target_dir": "skill",
+          "file_extension": ".md",
+          "transform": "opencode_skill"
+        }
+      },
+      "config_file": "opencode.json",
+      "detection": {
+        "config_path": "~/.config/opencode",
+        "binary_name": "opencode",
+        "version_command": "opencode --version"
+      },
+      "native_format": true,
+      "supports_hooks": false,
+      "hooks_note": "OpenCode uses plugin-based hooks (tool.execute.before, etc.) incompatible with Ring file-based hooks",
+      "terminology": {
+        "agent": "agent",
+        "skill": "skill",
+        "command": "command"
+      }
+    }
+  },
+  "component_types": ["agents", "commands", "skills", "hooks"],
+  "default_platform": "claude"
+}

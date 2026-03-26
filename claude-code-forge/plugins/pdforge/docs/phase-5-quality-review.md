@@ -1,0 +1,590 @@
+# 阶段 5：质量审查 (Quality Review)
+
+> 多层审查确保代码质量（条件性设计还原 + 规格合规 + 代码质量 + 安全）
+
+---
+
+## 📋 阶段概述
+
+| 维度 | 说明 |
+|------|------|
+| **目标** | 多层审查确保代码质量（含条件性设计还原审查） |
+| **输入** | 代码 + PRD（来自阶段4） |
+| **输出** | 审查报告 |
+| **上游阶段** | 开发实现（阶段4） |
+| **下游阶段** | 修复验证（阶段6） |
+
+---
+
+## 🧩 组件清单
+
+| 类型 | 名称 | 来源 | 说明 |
+|------|------|------|------|
+| **Subagent** | `design-reviewer` | PDForge | 设计还原审查（条件性，支持 Figma URL/截图/设计稿） |
+| **Subagent** | `spec-reviewer` | PDForge | 规格合规审查 |
+| **Subagent** | `code-reviewer` | PDForge | 代码质量审查 |
+| **Subagent** | `security-reviewer` | PDForge | 安全漏洞审查 |
+| **Skill** | `requesting-code-review` | PDForge | 审查请求流程 |
+| **Command** | `/review` | PDForge | 手动触发审查 |
+| **Command** | `/accept` | PDForge | 三阶段审查 + 自动修复循环 |
+| **Rule** | `security.md` | PDForge | 安全约束红线 |
+| **Hook** | `Stop (coverage-gate)` | PDForge | 覆盖率验证门控 |
+
+---
+
+## 🔧 为什么用 Subagent 而非 Skill？
+
+审查需要**客观第三方视角**：
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│  审查需要"新鲜眼睛"和"认知隔离"                              │
+│                                                             │
+│  • 审查者不应知道实现者的"心路历程"                          │
+│  • 需要客观评估，避免"自己给自己放水"                        │
+│  • 模拟"另一个工程师审查"的真实场景                          │
+│  • 每个审查员专注单一职责                                   │
+│                                                             │
+│  因此：审查任务 → Subagent（独立实例，隔离上下文）            │
+│                                                             │
+└─────────────────────────────────────────────────────────────┘
+```
+
+---
+
+## 🔧 组件详解
+
+### 0. design-reviewer Subagent（条件性首阶段）
+
+**触发条件**：上下文有设计参考（Figma URL、截图、设计稿图片）且代码已实现时
+
+**Frontmatter 配置**：
+
+```yaml
+---
+name: design-reviewer
+description: 设计还原审查专家。当上下文有设计参考（Figma 链接、截图、设计稿图片）且代码已实现后调用，对比设计参考验证代码的视觉还原度。
+tools: Read, Grep, Glob, Bash
+model: opus
+---
+```
+
+**工作方式**：
+- 接收 `DESIGN_REFERENCE`、`CODE_PATH`，可选 `IMPLEMENTATION_URL`
+- **设计稿获取**：
+  - **Figma 模式**（Figma URL）：调用 Figma MCP 获取截图和设计上下文，精确数值对比
+  - **截图模式**（图片路径）：直接读取图片进行视觉对比，无法确定的精确值标注"需人工确认"
+- **实现页面获取**：
+  - **Playwright 模式**（提供 `IMPLEMENTATION_URL`）：用 Playwright 截取真实渲染页面，与设计稿精确对比（推荐）
+  - **代码推断模式**（未提供 `IMPLEMENTATION_URL`）：从代码推断视觉效果，精度较低
+
+**检查清单**：
+
+- [ ] 布局结构（flex 方向、区域划分、绝对定位）
+- [ ] 组件完整性（所有设计节点有对应实现）
+- [ ] 组件映射（使用正确的项目组件）
+- [ ] 间距和尺寸（精确匹配 className 值）
+- [ ] 颜色准确性（从 bg-[#xxx] 提取）
+- [ ] 圆角精确值（不用近似值）
+
+**输出评估**：
+
+| 评估 | 含义 |
+|------|------|
+| 🟢 MATCH | 视觉还原度高，所有关键维度匹配 |
+| 🟡 PARTIAL | 结构正确但有间距/颜色等差异 |
+| 🔴 MISMATCH | 布局错误、组件缺失或被替换 |
+
+---
+
+### 1. spec-reviewer Subagent（第一阶段）
+
+**Frontmatter 配置**：
+
+```yaml
+---
+name: spec-reviewer
+description: 规格合规审查。验证实现是否满足 PRD。
+tools: Read, Grep, Glob
+model: opus
+---
+```
+
+**检查清单**：
+
+- [ ] PRD 中所有需求已实现
+- [ ] 验收标准全部满足
+- [ ] API 契约匹配规格
+- [ ] 没有引入未指定的行为
+- [ ] 边缘用例已覆盖
+
+**输出评估**：
+
+| 评估 | 含义 |
+|------|------|
+| 🟢 PASS | 完全符合规格 |
+| 🟡 PARTIAL | 部分符合，列出差距 |
+| 🔴 FAIL | 重大偏离，列出问题 |
+
+---
+
+### 2. code-reviewer Subagent（第二阶段）
+
+**Frontmatter 配置**：
+
+```yaml
+---
+name: code-reviewer
+description: 代码质量审查。代码修改后使用。
+tools: Read, Grep, Glob, Bash
+model: opus
+---
+```
+
+**审查维度**：
+
+| 维度 | 问题 | 优先级 |
+|------|------|--------|
+| 正确性 | 所有情况都能工作吗？ | 🔴 Must Pass |
+| 清晰性 | 凌晨 3 点能理解吗？ | 🔴 Must Pass |
+| 安全性 | 出错时影响范围多大？ | 🔴 Must Pass |
+| 可维护性 | 6个月后容易修改吗？ | 🟡 Should Pass |
+| 类型安全 | TypeScript 严格吗？ | 🟡 Should Pass |
+| 测试覆盖 | 测试足够全面吗？ | 🟢 Advisory |
+
+**检测命令示例**：
+
+```bash
+# 查找 any 滥用
+grep -rn ": any\|as any" --include="*.ts" | grep -v "test\|spec"
+
+# 查找非空断言
+grep -rn "\!\." --include="*.ts" | grep -v "test"
+
+# 查找 console.log
+grep -rn "console.log" --include="*.ts" | grep -v "test"
+
+# 查找深层嵌套
+# (需要人工判断，>4 层为红旗)
+```
+
+**输出格式**：
+
+```markdown
+## Code Review Summary
+
+**Assessment**: 🟢 APPROVE / 🟡 APPROVE WITH CHANGES / 🔴 REQUEST CHANGES
+**Risk Level**: Low / Medium / High / Critical
+
+---
+
+## Strengths ✨
+- **[Category]**: [Specific praise with file:line]
+
+---
+
+## Critical Issues 🔴 (Must Fix)
+
+### 1. [Issue Title]
+**Location**: `file.ts:L42-L58`
+**Problem**: [Description]
+**Why critical**: [Impact]
+**Fix**: [Code example]
+
+---
+
+## Important Issues 🟡 (Should Fix)
+...
+
+## Suggestions 🟢 (Consider)
+...
+
+## Action Items
+- [ ] Fix critical issue X
+- [ ] Address important issue Y
+```
+
+---
+
+### 3. security-reviewer Subagent（第三阶段）
+
+**Frontmatter 配置**：
+
+```yaml
+---
+name: security-reviewer
+description: 安全漏洞审查。涉及认证/授权/敏感数据时使用。
+tools: Read, Grep, Glob, Bash
+model: opus
+---
+```
+
+**OWASP Top 10 检查清单**：
+
+| # | 漏洞类型 | 检测方法 |
+|---|----------|----------|
+| 1 | 注入攻击 | `rg "query\(.*\$\{" --type ts` |
+| 2 | 认证失效 | 检查 session/token 管理 |
+| 3 | 敏感数据暴露 | `rg -i "password|secret|key" --type ts` |
+| 4 | XXE | 检查 XML 解析配置 |
+| 5 | 访问控制失效 | 检查授权逻辑 |
+| 6 | 安全配置错误 | 检查默认配置 |
+| 7 | XSS | 检查输出编码 |
+| 8 | 不安全的反序列化 | 检查 JSON.parse 使用 |
+| 9 | 已知漏洞组件 | `npm audit` |
+| 10 | 日志监控不足 | 检查敏感操作日志 |
+
+**常用检测命令**：
+
+```bash
+# 硬编码密钥
+rg -i "(api_key|password|secret|token)\s*[:=]" --type ts
+
+# SQL 注入风险
+rg "query\(.*\$\{" --type ts
+
+# eval 使用
+rg "eval\(" --type ts --type js
+
+# 依赖漏洞
+npm audit
+```
+
+---
+
+### 4. requesting-code-review Skill
+
+**触发条件**：完成任务步骤后、合并 PR 前
+
+**Frontmatter**：
+
+```yaml
+---
+name: requesting-code-review
+description: Use after completing a plan step or before merging PRs.
+---
+```
+
+**Pre-Review 检查清单**（提交审查前自检）：
+
+- [ ] 所有测试通过
+- [ ] TypeScript 无错误
+- [ ] 代码已格式化
+- [ ] 覆盖率达标
+
+---
+
+### 5. /review 命令
+
+**语法**：
+
+```bash
+/review <path>
+/review <path> --type <review_type>
+/review <path> --focus <area>
+```
+
+**参数**：
+
+| 参数 | 说明 | 可选值 |
+|------|------|--------|
+| `<path>` | 要审查的路径 | 文件或目录 |
+| `--type` | 审查类型 | `code`, `spec`, `security`, `all` |
+| `--focus` | 审查重点 | `security`, `performance`, `style` |
+
+**示例**：
+
+```bash
+# 代码审查
+/review src/auth/
+
+# 安全审查
+/review src/auth/ --type security
+
+# 规格审查
+/review src/auth/ --type spec --spec docs/prd/auth.md
+
+# 完整审查
+/review src/auth/ --type all --spec docs/prd/auth.md
+```
+
+---
+
+### 6. /accept 命令 ⭐
+
+**这是 PDForge 的核心命令，支持 `--fix --loop` 验证循环**
+
+**语法**：
+
+```bash
+/accept <prd_path> <code_path>
+/accept <prd_path> <code_path> --fix --loop <max_rounds>
+/accept <prd_path> <code_path> --skip-security
+```
+
+**参数**：
+
+| 参数 | 说明 |
+|------|------|
+| `<prd_path>` | PRD 文档路径 |
+| `<code_path>` | 代码路径 |
+| `--fix` | 自动修复问题 |
+| `--loop <N>` | 循环直到通过，最多 N 轮 |
+| `--skip-security` | 跳过安全审查（不推荐） |
+
+**示例**：
+
+```bash
+# 基本验收
+/accept docs/prd/auth.md src/auth/
+
+# 带自动修复的验收
+/accept docs/prd/auth.md src/auth/ --fix
+
+# 自动循环直到通过
+/accept docs/prd/auth.md src/auth/ --fix --loop 5
+```
+
+**验证循环流程**：
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│                    验证循环 (--fix --loop)                   │
+├─────────────────────────────────────────────────────────────┤
+│                                                             │
+│                      ┌──────────────┐                       │
+│                      │   开始验收    │                       │
+│                      └──────┬───────┘                       │
+│                             │                               │
+│                             ▼                               │
+│              ┌─────────────────────────────┐               │
+│              │  阶段0: design-reviewer     │               │
+│              │  设计还原审查 [按需]        │               │
+│              └─────────────┬───────────────┘               │
+│                            │                               │
+│                            ▼                               │
+│              ┌─────────────────────────────┐               │
+│              │  阶段1: spec-reviewer       │               │
+│              │  规格合规审查               │               │
+│              └─────────────┬───────────────┘               │
+│                            │                               │
+│                            ▼                               │
+│              ┌─────────────────────────────┐               │
+│              │  阶段2: code-reviewer       │               │
+│              │  代码质量审查               │               │
+│              └─────────────┬───────────────┘               │
+│                            │                               │
+│                            ▼                               │
+│              ┌─────────────────────────────┐               │
+│              │  阶段3: security-reviewer   │               │
+│              │  安全漏洞审查               │               │
+│              └─────────────┬───────────────┘               │
+│                            │                               │
+│                            ▼                               │
+│                    ┌──────────────┐                        │
+│                    │  全部通过？   │                        │
+│                    └──────┬───────┘                        │
+│                           │                                │
+│              ┌────────────┴────────────┐                   │
+│              ▼                         ▼                   │
+│             是                        否                   │
+│              │                         │                   │
+│              ▼                         ▼                   │
+│        ┌──────────┐           ┌──────────────┐            │
+│        │ ✅ 通过  │           │  issue-fixer │            │
+│        │ 进入阶段7│           │  修复问题    │            │
+│        └──────────┘           └──────┬───────┘            │
+│                                      │                     │
+│                                      ▼                     │
+│                               轮数 < max?                  │
+│                                      │                     │
+│                        ┌─────────────┴─────────────┐       │
+│                        ▼                           ▼       │
+│                       是                          否       │
+│                        │                           │       │
+│                        ▼                           ▼       │
+│                  返回阶段0                    ⚠️ 断路器     │
+│                  重新审查                    需要人工干预   │
+│                                                             │
+└─────────────────────────────────────────────────────────────┘
+```
+
+---
+
+### 7. security.md Rule
+
+**核心约束（红线）**：
+
+```markdown
+## Security Rules
+
+### 绝对禁止
+- 硬编码密钥/密码
+- SQL 拼接（必须参数化）
+- eval() 使用用户输入
+- 敏感数据明文传输/存储
+
+### 必须要求
+- 所有输入必须验证
+- 敏感操作必须日志记录
+- 认证失败必须限流
+- 密码必须哈希存储（bcrypt/argon2）
+
+### 安全响应头
+- X-Content-Type-Options: nosniff
+- X-Frame-Options: DENY
+- Content-Security-Policy: configured
+```
+
+---
+
+### 8. Stop Hook (coverage-gate)
+
+**配置** (`.claude/settings.json`)：
+
+```json
+{
+  "hooks": {
+    "Stop": [
+      {
+        "name": "coverage-gate",
+        "condition": "before_accept",
+        "command": "npm run test:coverage",
+        "threshold": {
+          "statements": 80,
+          "branches": 75,
+          "functions": 80,
+          "lines": 80
+        },
+        "on_failure": "block"
+      },
+      {
+        "name": "security-scan",
+        "condition": "before_accept",
+        "command": "npm audit --audit-level=high",
+        "on_failure": "block"
+      },
+      {
+        "name": "all-tests-pass",
+        "condition": "before_accept",
+        "command": "npm test",
+        "on_failure": "block"
+      }
+    ]
+  }
+}
+```
+
+---
+
+## 🚀 使用流程
+
+### 审查流程
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│                    审查流程                                  │
+├─────────────────────────────────────────────────────────────┤
+│                                                             │
+│   阶段 0: 设计还原审查 (design-reviewer) [按需]              │
+│   ├── 职责: 验证视觉还原度、布局结构、组件映射               │
+│   └── 触发: 上下文有设计参考（Figma URL/截图/设计稿）时      │
+│       │                                                     │
+│       ▼ 通过后（或无设计参考时跳过）                          │
+│                                                             │
+│   阶段 1: 规格合规审查 (spec-reviewer)                       │
+│   ├── 职责: 验证实现是否满足 PRD 所有需求                    │
+│   └── 通过条件: 需求覆盖 100%                               │
+│       │                                                     │
+│       ▼ 通过后                                              │
+│                                                             │
+│   阶段 2: 代码质量审查 (code-reviewer)                       │
+│   ├── 职责: 验证代码质量、最佳实践                           │
+│   └── 通过条件: 无严重问题                                  │
+│       │                                                     │
+│       ▼ 通过后                                              │
+│                                                             │
+│   阶段 3: 安全审查 (security-reviewer) [按需]                │
+│   ├── 职责: OWASP Top 10 漏洞检查                           │
+│   └── 触发: 涉及认证/授权/敏感数据时                         │
+│                                                             │
+└─────────────────────────────────────────────────────────────┘
+```
+
+**审查顺序不可颠倒**：先确保"看起来对"（设计还原，如有设计参考），再确保"做对的事"（规格），再确保"做得好"（代码质量），最后确保"做得安全"（安全）。设计审查和安全审查为条件性阶段。
+
+### 手动审查
+
+```bash
+# 单次代码审查
+/review src/auth/
+
+# 完整三阶段审查
+/review --type all --spec docs/prd/auth.md src/auth/
+```
+
+### 带自动修复的验收
+
+```bash
+# 推荐方式：自动修复 + 循环验证
+/accept docs/prd/auth.md src/auth/ --fix --loop 5
+```
+
+---
+
+## ⚙️ 配置差异
+
+### 0→1 产品
+
+```yaml
+quality_review:
+  reviewers:
+    - design-reviewer        # 设计还原（有设计参考时自动启用，支持 Figma/截图）
+    - code-reviewer          # 仅代码审查
+  max_rounds: 2
+  coverage_threshold: 50%
+  design_review: auto        # 有设计参考时自动启用
+  security_review: optional  # 可选
+```
+
+### 1→100 产品
+
+```yaml
+quality_review:
+  reviewers:
+    - design-reviewer        # 设计还原（有设计参考时自动启用，支持 Figma/截图）
+    - spec-reviewer          # 规格合规
+    - code-reviewer          # 代码质量
+    - security-reviewer      # 安全审查
+  max_rounds: 5
+  coverage_threshold: 80%
+  design_review: auto        # 有设计参考时自动启用
+  security_review: required  # 必须
+```
+
+---
+
+## ⚠️ 注意事项
+
+1. **审查顺序不可颠倒**：设计还原（如有）→ 规格合规 → 代码质量 → 安全
+2. **审查员是独立 Subagent**：没有实现过程的上下文，客观评估
+3. **设计审查是条件性首阶段**：上下文有设计参考（Figma URL/截图/设计稿图片）且代码已实现时自动触发
+4. **断路器是保护机制**：触发时需要人工介入，不要强行继续
+5. **覆盖率门控是硬性要求**：低于阈值无法通过
+
+---
+
+## 🔗 下一阶段
+
+审查发现问题后，进入 **阶段 6：修复验证**：
+
+```bash
+/fix --review docs/reviews/latest-review.md
+/fix --loop
+```
+
+审查全部通过后，进入 **阶段 7：交付部署**：
+
+```bash
+/deploy staging
+```

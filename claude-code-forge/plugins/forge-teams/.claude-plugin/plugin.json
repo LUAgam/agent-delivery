@@ -1,0 +1,22 @@
+{
+  "name": "forge-teams",
+  "description": "Agent Teams Product Development Pipeline - 7-phase adversarial collaborative development with multi-agent debate, competition, and cross-validation at every critical decision point, including red team attacks and adversarial debugging.",
+  "version": "1.6.0",
+  "author": {
+    "name": "XRenSiu",
+    "email": "xrensiu@gmail.com"
+  },
+  "homepage": "https://github.com/XRenSiu/claude-code-forge/tree/main/plugins/forge-teams",
+  "repository": "https://github.com/XRenSiu/claude-code-forge",
+  "license": "MIT",
+  "keywords": [
+    "agent-teams",
+    "adversarial",
+    "product-development",
+    "red-team",
+    "parallel-implementation",
+    "code-review",
+    "debugging",
+    "tdd"
+  ]
+}

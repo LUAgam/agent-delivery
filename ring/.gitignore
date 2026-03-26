@@ -1,0 +1,34 @@
+.worktrees/
+.private-journal/
+.test/
+examples/
+.references/
+docs/codereview/
+
+# Python cache
+.pytest_cache/
+.ruff_cache/
+__pycache__/
+*.pyc
+
+# Python virtual environments
+.venv/
+venv/
+
+# Python build artifacts
+*.egg-info/
+build/
+dist/
+
+# Type checking
+.mypy_cache/
+
+# Ring infrastructure runtime files
+.ring/
+
+# Ring build output (transformed files for symlink installs)
+.ring-build/
+
+.codegraph/
+
+node_modules/

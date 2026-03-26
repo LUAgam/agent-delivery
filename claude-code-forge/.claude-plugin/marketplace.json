@@ -1,0 +1,56 @@
+{
+  "$schema": "https://anthropic.com/claude-code/marketplace.schema.json",
+  "name": "claude-code-forge",
+  "description": "A curated collection of plugins for Claude Code, enhancing your AI-powered development workflow.",
+  "owner": {
+    "name": "XRenSiu",
+    "email": "xrensiu@gmail.com"
+  },
+  "plugins": [
+    {
+      "name": "pdforge",
+      "description": "Product Development Forge - AI-driven 7-phase product development workflow. Provides complete methodology from requirements analysis to deployment, including brainstorming, TDD, three-stage review, and auto-fix loops.",
+      "version": "1.14.0",
+      "author": {
+        "name": "XRenSiu",
+        "email": "xrensiu@gmail.com"
+      },
+      "source": "./plugins/pdforge",
+      "category": "development",
+      "homepage": "https://github.com/XRenSiu/claude-code-forge/tree/main/plugins/pdforge",
+      "repository": "https://github.com/XRenSiu/claude-code-forge",
+      "license": "MIT",
+      "tags": ["brainstorming", "planning", "code-review", "product-development", "workflow", "tdd", "automation", "figma", "design-to-code"]
+    },
+    {
+      "name": "adversarial-debugger",
+      "description": "Adversarial Debugging with Agent Teams - Multiple agents investigate competing hypotheses in parallel, challenge each other's findings through structured debate, and converge on the true root cause.",
+      "version": "1.0.0",
+      "author": {
+        "name": "XRenSiu",
+        "email": "xrensiu@gmail.com"
+      },
+      "source": "./plugins/adversarial-debugger",
+      "category": "debugging",
+      "homepage": "https://github.com/XRenSiu/claude-code-forge/tree/main/plugins/adversarial-debugger",
+      "repository": "https://github.com/XRenSiu/claude-code-forge",
+      "license": "MIT",
+      "tags": ["debugging", "adversarial", "agent-teams", "root-cause-analysis", "hypothesis-testing", "parallel-investigation"]
+    },
+    {
+      "name": "forge-teams",
+      "description": "Agent Teams Product Development Pipeline - 7-phase adversarial collaborative development with multi-agent debate, competition, and cross-validation at every critical decision point, including red team attacks, adversarial debugging, and self-healing parallel implementation.",
+      "version": "1.6.0",
+      "author": {
+        "name": "XRenSiu",
+        "email": "xrensiu@gmail.com"
+      },
+      "source": "./plugins/forge-teams",
+      "category": "development",
+      "homepage": "https://github.com/XRenSiu/claude-code-forge/tree/main/plugins/forge-teams",
+      "repository": "https://github.com/XRenSiu/claude-code-forge",
+      "license": "MIT",
+      "tags": ["agent-teams", "adversarial", "product-development", "red-team", "parallel-implementation", "debugging", "tdd"]
+    }
+  ]
+}

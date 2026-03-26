@@ -1,0 +1,34 @@
+{
+  "$schema": "https://raw.githubusercontent.com/LerianStudio/ring-for-opencode/main/assets/ring-config.schema.json",
+
+  // Hooks to disable. Allowed: "session-start", "context-injection".
+  "disabled_hooks": [],
+
+  // Agents to disable. Allowed: "code-reviewer", "security-reviewer", "business-logic-reviewer",
+  // "test-reviewer", "nil-safety-reviewer", "codebase-explorer", "write-plan",
+  // "backend-engineer-golang", "backend-engineer-typescript", "frontend-engineer",
+  // "frontend-designer", "devops-engineer", "sre", "qa-analyst".
+  "disabled_agents": [],
+
+  // Skills to disable. Allowed: "using-ring-opencode", "test-driven-development",
+  // "requesting-code-review", "writing-plans", "executing-plans", "brainstorming",
+  // "linting-codebase", "using-git-worktrees", "exploring-codebase", "handoff-tracking",
+  // "interviewing-user", "receiving-code-review", "using-dev-team", "writing-skills",
+  // "dev-cycle", "dev-devops", "dev-feedback-loop", "dev-implementation", "dev-refactor",
+  // "dev-sre", "dev-testing", "dev-validation".
+  "disabled_skills": [],
+
+  // Commands to disable. Allowed: "brainstorm", "codereview", "commit", "create-handoff",
+  // "dev-cancel", "dev-cycle", "dev-refactor", "dev-report", "dev-status", "execute-plan",
+  // "explore-codebase", "lint", "worktree", "write-plan".
+  "disabled_commands": [],
+
+  "experimental": {
+    "preemptiveCompaction": false,
+    "compactionThreshold": 0.8,
+    "aggressiveTruncation": false
+  },
+
+  // Hook-specific overrides keyed by hook name.
+  "hooks": {}
+}

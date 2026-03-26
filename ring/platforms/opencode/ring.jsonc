@@ -1,0 +1,40 @@
+{
+  "$schema": "./ring-config.schema.json",
+
+  // Hooks to disable. Allowed: "session-start", "context-injection".
+  "disabled_hooks": [],
+
+  // Agents to disable (35 total). Examples:
+  // "code-reviewer", "security-reviewer", "business-logic-reviewer", "test-reviewer",
+  // "nil-safety-reviewer", "consequences-reviewer", "codebase-explorer", "write-plan",
+  // "backend-engineer-golang", "backend-engineer-typescript", "frontend-engineer",
+  // "frontend-bff-engineer-typescript", "frontend-designer", "ui-engineer",
+  // "devops-engineer", "sre", "qa-analyst", "qa-analyst-frontend",
+  // "prompt-quality-reviewer", "product-designer", "best-practices-researcher",
+  // "framework-docs-researcher", "repo-research-analyst",
+  // "api-writer", "functional-writer", "docs-reviewer",
+  // "portfolio-manager", "resource-planner", "risk-analyst", "governance-specialist",
+  // "executive-reporter", "delivery-reporter",
+  // "finops-analyzer", "finops-automation", "infrastructure-cost-estimator"
+  "disabled_agents": [],
+
+  // Skills to disable (86 total). Examples:
+  // "using-ring", "test-driven-development", "requesting-code-review", "brainstorming",
+  // "dev-cycle", "dev-implementation", "dev-unit-testing", "dev-delivery-verification",
+  // "pre-dev-prd-creation", "pre-dev-research", "visual-explainer", "drawing-diagrams"
+  "disabled_skills": [],
+
+  // Commands to disable (33 total). Examples:
+  // "brainstorm", "codereview", "commit", "dev-cycle", "dev-refactor",
+  // "explore-codebase", "lint", "write-plan", "diagram", "visualize"
+  "disabled_commands": [],
+
+  "experimental": {
+    "preemptiveCompaction": false,
+    "compactionThreshold": 0.8,
+    "aggressiveTruncation": false
+  },
+
+  // Hook-specific overrides keyed by hook name.
+  "hooks": {}
+}

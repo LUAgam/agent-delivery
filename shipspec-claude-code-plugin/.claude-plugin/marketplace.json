@@ -1,0 +1,37 @@
+{
+  "$schema": "https://anthropic.com/claude-code/marketplace.schema.json",
+  "name": "shipspec-marketplace",
+  "version": "1.0.0",
+  "description": "ShipSpec: Spec-driven development for Claude Code. Ship bigger features with confidence.",
+  "owner": {
+    "name": "jsegov"
+  },
+  "plugins": [
+    {
+      "name": "shipspec",
+      "description": "Spec-driven development for Claude Code. Plan bigger features with persistent PRDs, technical designs, and implementation tasks that keep your AI coding agent on track across sessions.",
+      "version": "1.1.0",
+      "author": {
+        "name": "ShipSpec"
+      },
+      "source": {
+        "source": "url",
+        "url": "https://github.com/jsegov/shipspec-claude-code-plugin.git"
+      },
+      "category": "development",
+      "homepage": "https://github.com/jsegov/shipspec-claude-code-plugin",
+      "keywords": [
+        "planning",
+        "prd",
+        "design",
+        "tasks",
+        "agents",
+        "production",
+        "security",
+        "compliance",
+        "soc2",
+        "code-analysis"
+      ]
+    }
+  ]
+}
