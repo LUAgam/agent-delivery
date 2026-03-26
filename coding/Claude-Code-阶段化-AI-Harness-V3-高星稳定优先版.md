@@ -28,6 +28,9 @@
 - 用 **adversarial-spec / memsearch** 作为增强项；
 - 把 **ShipSpec、deep-plan、deep-implement、Ring、aio-reflect** 降级为参考实现，不再作为后续整合的主依赖。
 
+这里的 **Flow-Next** 不是指某个独立的新插件名，而是指 **`gmickel-claude-marketplace` 中与 `.flow/*`、`flowctl`、epic/spec/task artifact 对应的 plan-first 交付子集能力**。  
+也就是说，V3 选择的是一类 **Flow 风格统一交付主干**，当前优先采用的具体承载，就是该仓库中这部分 `.flow/flowctl` 能力，而不是 `gmickel-claude-marketplace` 的全部功能。
+
 ### 2.2 这次调整后的核心理由
 
 这次收敛不是否定 V2 的思想，而是把“正确思想”绑定到更稳的组件上：
@@ -36,6 +39,31 @@
 - **PLAN 作为控制中心**，这个判断继续保留。
 - **四类分层议会**，这个判断继续保留。
 - 但承载这些机制的组件，要尽量换成更成熟、更主流、更少踩坑的方案。
+
+### 2.3 选择表达的分层约定
+
+为了避免“机制已经确定”和“具体承载已经完全敲定”被混为一谈，V3 中的选择表述分为三层：
+
+1. **确定性已选依赖**
+   - Claude Code 原生能力
+   - Superpowers
+   - ECC 精选子集
+2. **目标态优先主干**
+   - Flow-Next（即 `gmickel-claude-marketplace` 中 `.flow/flowctl` 的 plan-first 交付子集能力）
+3. **增强候选项**
+   - adversarial-spec
+   - memsearch
+
+其中，真正**不可替换**的是机制层：
+
+- `stage-harness` 编排外壳
+- PLAN 控制中心
+- 分层议会
+- Decision Bundle
+- 阶段门禁
+- 可审查 / 可阻断 / 可回退
+
+而 Superpowers、Flow-Next、ECC 子集、增强项，属于这些机制的**当前优先承载组件**，后续如果出现更稳、更契合的同类承载，机制本身不需要重写。
 
 ---
 
@@ -77,6 +105,16 @@ V3 继续坚持：
 - 换一个仓库作者节奏就失效；
 - 某个小众插件停更就卡死主流程。
 
+### 原则 5：机制契合度高于热度指标
+
+`stars / 活跃度 / 可见度 / 安装成熟度` 是重要筛选器，但**不高于机制契合度本身**。
+
+也就是说：
+
+- 高 stars 不能替代阶段职责契合；
+- 主流程度不能替代控制力；
+- 热度用于缩小候选，不用于推翻已验证的机制设计。
+
 ---
 
 ## 四、最终主干架构（V3）
@@ -95,7 +133,7 @@ V3 继续坚持：
 │     负责澄清、设计收敛、TDD 方法、review 方法、执行纪律        │
 ├──────────────────────────────────────────────────────────────┤
 │  3. 交付主干层 Delivery Backbone                              │
-│     Flow-Next                                                  │
+│     Flow-Next（gmickel-claude-marketplace 的 .flow/flowctl 子集） │
 │     spec/interview/plan/work/re-anchor/review/evidence        │
 │     你的 PRD / SDD / TASKS 作为权威产物格式                    │
 ├──────────────────────────────────────────────────────────────┤
@@ -129,7 +167,7 @@ DISCOVER -> CLARIFY
 
 ## 五、组件分级与最终取舍
 
-### 5.1 A 类：主链硬依赖（推荐必须选）
+### 5.1 A 类：主链硬依赖（其中 A1 / A2 / A4 为确定性已选依赖，A3 为目标态优先主干）
 
 #### A1. Claude Code 原生能力
 
@@ -138,7 +176,7 @@ DISCOVER -> CLARIFY
 
 - hooks：硬门禁
 - subagents：轻角色分工
-- agent teams：关键出口议会
+- agent teams：关键出口议会（条件启用）
 - marketplace：分发与版本管理
 - rules / skills：知识与流程注入
 
@@ -173,12 +211,24 @@ DISCOVER -> CLARIFY
 - EXECUTE
 - VERIFY 前的 evidence / review / re-anchor
 
+**在 V3 中的确切含义：**
+
+- 这里的 **Flow-Next**，特指 `gmickel-claude-marketplace` 中与 `.flow/*` artifact、`flowctl`、epic/spec/task 图谱相关的 **plan-first 交付子集能力**；
+- 不等于选择 `gmickel-claude-marketplace` 的全部功能；
+- 本质上，它代表的是一种 **Flow 风格统一交付主干**，当前优先采用该仓库中的这部分承载。
+
 **纳入主链的原因：**
 
 - 它比 `deep-plan + deep-implement` 更适合做统一主干；
 - 它天然强调 plan-first；
 - 它带 task tracking、dependency graph、re-anchoring、cross-model review；
 - 更接近“PLAN 是控制中心”的目标形态。
+
+**选择地位：**
+
+- 它是 V3 的**目标态优先主干**；
+- 机制上，后半程统一主干已明确选择为 Flow 风格；
+- 组件上，当前优先采用 `gmickel-claude-marketplace` 中的 `.flow/flowctl` 子集能力作为承载。
 
 #### A4. ECC（只保留精选子集）
 
@@ -195,9 +245,14 @@ DISCOVER -> CLARIFY
 - 但必须 selective install，只保留治理、质量、安全、学习相关内容；
 - 不让 ECC 反向吞掉主流程。
 
+**精选子集边界：**
+
+- **承担：** `audit / verify / safety gate / learning candidate governance / session & governance substrate`
+- **不承担：** 主规划器、主执行器、主 reviewer workflow、核心 artifact 定义器
+
 ---
 
-### 5.2 B 类：增强组件（推荐按需引入）
+### 5.2 B 类：增强候选项（按需保留，不预设为当前主链组成）
 
 #### B1. adversarial-spec
 
@@ -213,6 +268,7 @@ DISCOVER -> CLARIFY
 - 不替代主链；
 - 作为 SPEC / PLAN 的增强审查步骤；
 - 在高风险 feature、关键架构决策、复杂售前需求中启用。
+- 选择地位上，把它视为**优先保留的增强候选项**，而不是默认启用的常驻主链组件。
 
 #### B2. memsearch
 
@@ -228,6 +284,7 @@ DISCOVER -> CLARIFY
 - 先用 native memory；
 - 真正需要跨会话语义检索时再接 memsearch；
 - 不在 MVP-1 阶段强依赖。
+- 选择地位上，把它视为**学习层增强位**，不是当前必须绑定的长期基础设施。
 
 ---
 
@@ -241,6 +298,7 @@ DISCOVER -> CLARIFY
 - 规格权威这件事，应该沉淀成你自己的 `PRD.md / SDD.md / TASKS.`* 标准格式；
 - 不值得把 SPEC 阶段绑定到一个体量偏小的单仓库；
 - 其价值更多在“规格组织方式”与提示词思路，而不是运行时依赖。
+- 选择地位上，ShipSpec 保留为 **SPEC 阶段的重要参考标杆**，但不再视为长期默认规格引擎。
 
 #### C2. deep-plan / deep-implement
 
@@ -505,6 +563,12 @@ agent teams 用在：
 - 验收议会
 - 发布议会
 
+**定位补充：**
+
+- agent teams 属于**条件启用的高级协作能力**；
+- 它不是日常默认底座，而是关键关口的议会执行方式；
+- 如果任务规模小、争议少、共享任务列表需求弱，应优先退回 subagents。
+
 原则：
 
 - 平时不用它替代普通工作流
@@ -524,6 +588,7 @@ agent teams 用在：
 - `TASKS.md`
 
 这四份文件，不再依赖 ShipSpec 的存在与否。
+ShipSpec 可以继续作为规格组织方式和提示词设计的**参考标杆**，但不再构成长期规格权威本身。
 
 ### 11.2 PLAN 阶段
 
@@ -534,7 +599,7 @@ agent teams 用在：
 - `test-strategy.md`
 - `risk-register.md`
 - `rollback-notes.md`
-- Flow-Next `.flow/*`
+- Flow-Next `.flow/*`（即 `gmickel-claude-marketplace` 中 `.flow/flowctl` 对应的交付 artifact 子集）
 - `plan-council-report.md`
 - `plan-council-verdict.json`
 
@@ -686,7 +751,7 @@ V3 的最终形态不是“把更多插件串起来”，而是：
 - 选型上，改为 V3 的：
   - **Claude Code 原生能力**
   - **Superpowers**
-  - **Flow-Next**
+  - **Flow-Next（`gmickel-claude-marketplace` 的 `.flow/flowctl` 子集能力）**
   - **ECC 精选子集**
   - **adversarial-spec / memsearch（按需）**
 
