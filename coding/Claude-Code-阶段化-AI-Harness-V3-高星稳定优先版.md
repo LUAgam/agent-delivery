@@ -238,7 +238,7 @@ DISCOVER -> CLARIFY
 **处理结论：** 不再作为主链硬依赖。  
 **原因：**
 
-- 规格权威这件事，应该沉淀成你自己的 `PRD.md / SDD.md / TASKS.*` 标准格式；
+- 规格权威这件事，应该沉淀成你自己的 `PRD.md / SDD.md / TASKS.`* 标准格式；
 - 不值得把 SPEC 阶段绑定到一个体量偏小的单仓库；
 - 其价值更多在“规格组织方式”与提示词思路，而不是运行时依赖。
 
@@ -273,15 +273,17 @@ DISCOVER -> CLARIFY
 
 ## 六、职责与控制权矩阵（V3）
 
-| 阶段 | 主负责组件 | 权威产物 | 重点控制对象 | 放行方式 |
-|---|---|---|---|---|
-| CLARIFY | Superpowers | `clarification-notes.md`、`decision-bundle.json` | 边界、假设、未决项 | Decision Bundle + gate |
-| SPEC | stage-harness + 自定义 spec 模板 | `PRD.md`、`SDD.md`、`TASKS.json`、`TASKS.md` | 规格完整性、一致性、可落地性 | 轻议会 |
-| PLAN | Flow-Next + stage-harness | `bridge-spec.md`、`.flow/*`、`execution-plan.md`、`test-strategy.md` | 覆盖、切分、依赖、验证、风险 | 计划议会 |
-| EXECUTE | Flow-Next | 代码、测试、evidence、task/section 记录 | section 边界、TDD、漂移控制 | section 内循环 |
-| VERIFY | agent teams + ECC 子集 | `review-report.md`、`test-report.md`、`verification.json` | 正式工程验收、质量门禁 | 验收议会 |
-| FIX | Flow-Next + VERIFY 重跑 | `fix-log.md`、更新后的 `verification.json` | 问题闭环、复验 | FIX -> VERIFY |
-| DONE | 发布议会 + ECC + 学习层 | `release-notes.md`、`delivery-summary.md`、`learning-candidates.md` | 发布准备度、交付包、安全、学习治理 | 发布议会 |
+
+| 阶段      | 主负责组件                       | 权威产物                                                              | 重点控制对象              | 放行方式                   |
+| ------- | --------------------------- | ----------------------------------------------------------------- | ------------------- | ---------------------- |
+| CLARIFY | Superpowers                 | `clarification-notes.md`、`decision-bundle.json`                   | 边界、假设、未决项           | Decision Bundle + gate |
+| SPEC    | stage-harness + 自定义 spec 模板 | `PRD.md`、`SDD.md`、`TASKS.json`、`TASKS.md`                         | 规格完整性、一致性、可落地性      | 轻议会                    |
+| PLAN    | Flow-Next + stage-harness   | `bridge-spec.md`、`.flow/`*、`execution-plan.md`、`test-strategy.md` | 覆盖、切分、依赖、验证、风险      | 计划议会                   |
+| EXECUTE | Flow-Next                   | 代码、测试、evidence、task/section 记录                                    | section 边界、TDD、漂移控制 | section 内循环            |
+| VERIFY  | agent teams + ECC 子集        | `review-report.md`、`test-report.md`、`verification.json`           | 正式工程验收、质量门禁         | 验收议会                   |
+| FIX     | Flow-Next + VERIFY 重跑       | `fix-log.md`、更新后的 `verification.json`                             | 问题闭环、复验             | FIX -> VERIFY          |
+| DONE    | 发布议会 + ECC + 学习层            | `release-notes.md`、`delivery-summary.md`、`learning-candidates.md` | 发布准备度、交付包、安全、学习治理   | 发布议会                   |
+
 
 ---
 
@@ -410,7 +412,7 @@ V3 仍然保留这个思想，但把底层承载调整为：
 
 进入 EXECUTE 前至少要满足：
 
-- `PRD.md / SDD.md / TASKS.*` 已冻结到当前版本；
+- `PRD.md / SDD.md / TASKS.`* 已冻结到当前版本；
 - `bridge-spec.md` 已形成；
 - execution plan 已形成；
 - test strategy 已形成；
@@ -607,18 +609,20 @@ agent teams 用在：
 
 ## 十三、对原 V2 各组件的最终处置清单
 
-| 组件 | V2 角色 | V3 处理结论 | 原因 |
-|---|---|---|---|
-| stage-harness | 编排外壳 | 保留并加强 | 这是你的真正差异化能力 |
-| Superpowers | 澄清与方法层 | 保留 | 主流、成熟、方法学价值高 |
-| ShipSpec | 规格权威 | 降级为参考 | 规格应沉淀为你自己的权威模板 |
-| deep-plan | 计划主干 | 降级为参考 | Flow-Next 更适合作为统一计划骨架 |
-| deep-implement | 执行主干 | 降级为参考 | 与 deep-plan 双依赖桥接成本高 |
-| Ring | 验收 / reviewer | 降级为参考 | 保留 reviewer 思想，不绑运行时 |
-| ECC | 治理与学习 | 保留精选子集 | 体量大、能力强，但不能全装 |
-| aio-reflect | 学习提名 | 移除主依赖 | 由 native memory + memsearch 替代 |
-| adversarial-spec | 原未明确主链 | 新增增强项 | 适合规格关口补盲 |
-| memsearch | 原未明确主链 | 新增增强项 | 适合跨会话学习检索 |
+
+| 组件               | V2 角色         | V3 处理结论 | 原因                             |
+| ---------------- | ------------- | ------- | ------------------------------ |
+| stage-harness    | 编排外壳          | 保留并加强   | 这是你的真正差异化能力                    |
+| Superpowers      | 澄清与方法层        | 保留      | 主流、成熟、方法学价值高                   |
+| ShipSpec         | 规格权威          | 降级为参考   | 规格应沉淀为你自己的权威模板                 |
+| deep-plan        | 计划主干          | 降级为参考   | Flow-Next 更适合作为统一计划骨架          |
+| deep-implement   | 执行主干          | 降级为参考   | 与 deep-plan 双依赖桥接成本高           |
+| Ring             | 验收 / reviewer | 降级为参考   | 保留 reviewer 思想，不绑运行时           |
+| ECC              | 治理与学习         | 保留精选子集  | 体量大、能力强，但不能全装                  |
+| aio-reflect      | 学习提名          | 移除主依赖   | 由 native memory + memsearch 替代 |
+| adversarial-spec | 原未明确主链        | 新增增强项   | 适合规格关口补盲                       |
+| memsearch        | 原未明确主链        | 新增增强项   | 适合跨会话学习检索                      |
+
 
 ---
 
@@ -697,3 +701,4 @@ V3 的最终形态不是“把更多插件串起来”，而是：
 - ECC 当前仍是高星高活跃项目，且最近版本明确支持 selective install，因此更适合作为“治理层精选子集”，而不是整仓全装。 citeturn386119search1turn624831search2turn624831search6
 - Flow-Next 当前约 552 stars，定位非常清晰：plan-first orchestration、dependency graph、re-anchoring、cross-model reviews，更适合承接你对 PLAN 控制中心的要求。 citeturn823845search0turn512768search6turn271410view1
 - adversarial-spec 和 memsearch 都更适合作为增强项而非主链：前者偏规格关口补盲，后者偏跨会话记忆与检索。 citeturn611861search0turn611861search4turn512768search15
+
