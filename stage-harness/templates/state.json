@@ -1,0 +1,20 @@
+{
+  "feature": "",
+  "currentStage": "CLARIFY",
+  "riskLevel": "medium",
+  "stageHistory": [],
+  "pendingDecisions": [],
+  "verifyAttempts": 0,
+  "maxVerifyAttempts": 3,
+  "councilResults": {
+    "specCouncil": null,
+    "planCouncil": null,
+    "acceptanceCouncil": null,
+    "releaseCouncil": null
+  },
+  "rollbackHistory": [],
+  "sessionCount": 0,
+  "totalTokens": 0,
+  "createdAt": "",
+  "updatedAt": ""
+}

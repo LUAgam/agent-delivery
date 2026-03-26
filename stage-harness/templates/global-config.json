@@ -1,0 +1,18 @@
+{
+  "version": "0.1.0",
+  "workflow": "stage-harness",
+  "defaultRiskLevel": "medium",
+  "defaultMaxVerifyAttempts": 3,
+  "stages": [
+    "CLARIFY",
+    "SPEC",
+    "PLAN",
+    "EXECUTE",
+    "VERIFY",
+    "DONE"
+  ],
+  "paths": {
+    "featuresRoot": ".harness/features",
+    "activeFeatureFile": ".harness/active-feature.txt"
+  }
+}
