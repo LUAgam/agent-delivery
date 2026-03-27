@@ -1,0 +1,17 @@
+{
+  "name": "stage-harness",
+  "description": "Stage-oriented orchestration plugin that manages feature state, artifact gates, and workflow transitions from clarify through delivery.",
+  "version": "0.1.0",
+  "author": {
+    "name": "Cursor Cloud Agent"
+  },
+  "repository": "https://example.invalid/stage-harness",
+  "keywords": [
+    "workflow",
+    "orchestration",
+    "planning",
+    "gates",
+    "state-machine",
+    "claude-code-plugin"
+  ]
+}

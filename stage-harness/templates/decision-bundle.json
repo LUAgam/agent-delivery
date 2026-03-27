@@ -1,0 +1,16 @@
+{
+  "stage": "CLARIFY",
+  "decisionBundle": [
+    {
+      "id": "D-EXAMPLE-01",
+      "question": "Example decision placeholder",
+      "options": [
+        "Option A",
+        "Option B"
+      ],
+      "default": null,
+      "impact": "Replace this template with a real decision before advancing.",
+      "evidence": "artifacts/clarification-notes.md"
+    }
+  ]
+}
