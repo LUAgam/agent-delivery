@@ -1,1 +1,0 @@
-# Ring-Dev-Team Changelog

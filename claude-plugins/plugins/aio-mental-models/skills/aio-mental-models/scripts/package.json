@@ -1,8 +1,0 @@
-{
-  "name": "mental-models-search",
-  "private": true,
-  "type": "module",
-  "dependencies": {
-    "@huggingface/transformers": "^3.4.1"
-  }
-}
